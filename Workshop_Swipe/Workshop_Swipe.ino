@@ -26,10 +26,15 @@ enum state_machine {
 #define MIDDLE_STATE 20
 #define RIGHT_STATE 10
 #define BUFFER 3
+#define TIMEOUT 500
 
 // Init the sensor if any
 Ultrasonic ultrasonic(SENSORPIN);
 enum state_machine machine;
+
+// Keep track of time to enable a timeout
+unsigned long startTime;
+
 
 void setup() {
   Serial.begin(9600);
@@ -76,6 +81,13 @@ void stateMachine(int value)
         machine = STATE_START;
       break;
   }
+  
+  // timeout if the motion takes too long (apparently an unintended event happened)
+  if (millis() > (startTime + TIMEOUT)) {
+    Serial.println("TImeout occurred\n");
+    machine = STATE_START;
+  }
+
 }
 
 void loop() {
